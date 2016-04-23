@@ -98,10 +98,8 @@ function update(){
 
 function paintEvent(){
   // Painting event is true, check to see if we're already painting
-  var test = isPaintDelay;
   // Start paint event, flip delay flag
   isPaintDelay = !isPaintDelay; // isPaintDelay === true
-  test = isPaintDelay;
   setTimeout(paint,delayGlobal);
 }
 
@@ -109,7 +107,6 @@ function paint(){
   console.log("painting")
   // done with painting event, flip delay flag
   isPaintDelay = !isPaintDelay;
-  var test = isPaintDelay;
 }
 
 /**
