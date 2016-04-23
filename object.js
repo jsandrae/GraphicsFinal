@@ -18,6 +18,7 @@ var change = false; // boolean for if it is necessary to update coords
 var delayGlobal = 500; // global delay value in milliseconds
 var coords = []; // array to store coord objects
 var queueLength = 8; //number of coords to be stored
+var myTimeout;
 
 // Flags
 var isMouseDown = false; // flag for if mouse is being pressed
@@ -25,51 +26,30 @@ var isWithinCanvas = false; // flag for if mouse is within canvas
 var isPaintEvent = false; // flag for if should be painting
 var isPaintDelay = false; //flag for limiting number of paint events in a given interval
 
+// jQuery selector variables
+var $window,
+    $canvas,
+    $document;
+
 var theta = [0, 0, 0];
 
 var thetaLoc;
 var elementCount; //number of indices
 var indexCount = 0; // Offset for previous ring indices
 
-/**
- * Function for handling state of isPaintEvent flag. Flag gets set to true if all
- *  conditions are met.
- * Conditions:
- * 1. Mouse is being pressed
- * 2. Mouse is within canvas window
- *
- * Test cases:
- * User mousedown on canvas, mouseup on canvas
- * User mousedown on canvas, drags off canvas, mouseup off canvas
- * mousedown off canvas, mouseup off canvas
- * mousedown off canvas, drags on canvas, mouseup on canvas
- * mousedown on canvas, drags off canvas, drags on canvas, mouseup on canvas
- * mousedown off canvas, drags on canvas, drags off canvas, mouseup off canvas
- */
 function testCoords(){
-  var $canvas = $('#gl-canvas'),
-      myInterval;
-/*
-  // Add event handler for when user clicks on canvas
-  $canvas.on('mousedown', function(){
-
-
-    mouseDown = true;
-    console.log(mouseDown)
-    $(window).on('mouseup',function(){
-      if(mouseDown){
-        mouseDown = false;
-        console.log(mouseDown)
-      }
-    })
-  });*/
-
-
+  var $canvas = $('#gl-canvas');
 
 }
 
 /**
  * Function to update page every render frame
+ * Handles state of isPaintEvent flag. Flag gets set to true if all
+ *  conditions are met.
+ * Conditions:
+ * 1. Mouse is being pressed
+ * 2. Mouse is within canvas window
+ * 3. Not currently exectuing paint function
  */
 function update(){
   // update paintEvent: mousedown + mouseInCanvas + !inDelay
@@ -100,11 +80,14 @@ function paintEvent(){
   // Painting event is true, check to see if we're already painting
   // Start paint event, flip delay flag
   isPaintDelay = !isPaintDelay; // isPaintDelay === true
-  setTimeout(paint,delayGlobal);
+  // clear previous timeout and set new one
+  clearTimeout(myTimeout);
+  myTimeout = setTimeout(paint,delayGlobal);
 }
 
 function paint(){
   console.log("painting")
+
   // done with painting event, flip delay flag
   isPaintDelay = !isPaintDelay;
 }
@@ -113,25 +96,30 @@ function paint(){
  * Function to initialize page logic on page load
  */
 function initWindow(){
+  // set jQuery selectors
+  $window = $(window);
+  $canvas = $('#gl-canvas');
+  $document = $(document);
+
   // fill queue with empty coordinates
   for(var i=0; i<queueLength; i++){
     coords.push({'x':i,'y':i});
   }
   change = true;
   // mouse left canvas, turn off flag
-  $('#gl-canvas').on('mouseout',function(){
+  $canvas.on('mouseout',function(){
     isWithinCanvas = false;
   })
 
   // mouse entered canvas, turn on flag
-  $('#gl-canvas').on('mouseover', function(){
+  $canvas.on('mouseover', function(){
     isWithinCanvas = true;
   })
 
   // mouse button pressed, turn on flag and provide event handler for turning off flag
-  $(document).on('mousedown', function(){
+  $document.on('mousedown', function(){
     isMouseDown = true;
-    $(window).on('mouseup', function(){
+    $window.on('mouseup', function(){
       isMouseDown = false;
     });
   });
@@ -175,8 +163,6 @@ function canvasMain() {
       $(this).toggleClass('btn-success');
       zAxis = !zAxis;
     });
-
-    testCoords();
 
     render();
     //drawObject(gl, program, piece);
