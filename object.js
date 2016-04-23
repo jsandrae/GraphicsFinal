@@ -4,7 +4,7 @@
  * Modified by Marietta E. Cameron, Jason Andrae
  * Last Modified: 4-17-2016
  *
- * 
+ *
  */
 
 var gl;
@@ -13,12 +13,28 @@ var gl;
 var xAxis = true;
 var yAxis = false;
 var zAxis = false;
+var mouseDown = false;
+var delayGlobal = 100;
 
 var theta = [0, 0, 0];
 
 var thetaLoc;
 var elementCount; //number of indices
 var indexCount = 0; // Offset for previous ring indices
+
+function testCoords(){
+
+  $("#gl-canvas").on('mousedown', function(){
+    mouseDown = true;
+    console.log("true")
+    $(window).on('mouseup',function(){
+      if(mouseDown){
+        mouseDown = false;
+        console.log("false")
+      }
+    })
+  });
+}
 
 function canvasMain() {
     //load webGL
@@ -28,6 +44,10 @@ function canvasMain() {
         alert("WebGL isn't available");
     }
 
+    // clear the background (with white)
+    gl.clearColor(0.95, 0.95, 0.95, 1.0);
+    gl.enable(gl.DEPTH_TEST);//enabling z buffer
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //using z buffer and colors, reset both
 
     //  Load shaders and initialize attribute buffers
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
@@ -53,17 +73,14 @@ function canvasMain() {
       zAxis = !zAxis;
     });
 
-    drawObject(gl, program, piece);
+    testCoords();
+
+    //drawObject(gl, program, piece);
 
 }//CanvasMain
 
 
 function drawObject(gl, program, obj) {
-
-    // clear the background (with black)
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.enable(gl.DEPTH_TEST);//enabling z buffer
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //using z buffer and colors, reset both
 
     // set the shader to use
     gl.useProgram(program);
@@ -116,6 +133,8 @@ function render()
     if (zAxis){
       theta[2] += 2.0; //rotate by 2 degrees
     }
+
+    checkDown();
 
     gl.uniform3fv(thetaLoc, theta); //find theta in html and set it
 
@@ -186,3 +205,19 @@ function getPalette(paletteSize){
 
   return palette;
 }
+
+/**
+ * Function to delay the check for a certain function some action to a predetermined interval
+ */
+$(function() {
+  var timer_id;
+  var delay = 100;
+/*
+  $(element).on('event',function(){
+    clearTimeout(timer_id);
+    timer_id = setTimeout(function() {
+      functionToPerform();
+    }, delay);
+  });
+*/
+});
