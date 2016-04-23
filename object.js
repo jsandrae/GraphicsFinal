@@ -72,8 +72,8 @@ function testCoords(){
  * Function to update page every render frame
  */
 function update(){
-  // update paintEvent
-  isPaintEvent = isMouseDown && isWithinCanvas;
+  // update paintEvent: mousedown + mouseInCanvas + !inDelay
+  isPaintEvent = isMouseDown && isWithinCanvas && !isPaintDelay;
   // if paint event is true, user is correctly engaging paint, try to paint
   if(isPaintEvent){
     paintEvent();
@@ -98,13 +98,11 @@ function update(){
 
 function paintEvent(){
   // Painting event is true, check to see if we're already painting
-  if (!isPaintDelay){ // if isPaintDelay === false
-    var test = isPaintDelay;
-    // Start paint event, flip delay flag
-    isPaintDelay = !isPaintDelay; // isPaintDelay === true
-    test = isPaintDelay;
-    setTimeout(paint,delayGlobal);
-  }
+  var test = isPaintDelay;
+  // Start paint event, flip delay flag
+  isPaintDelay = !isPaintDelay; // isPaintDelay === true
+  test = isPaintDelay;
+  setTimeout(paint,delayGlobal);
 }
 
 function paint(){
