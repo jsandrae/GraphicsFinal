@@ -1,7 +1,7 @@
 /**
  *
  * @author:  Edward Angel
- * Modified by Marietta E. Cameron, Jason Andrae, Andrew
+ * Modified by Marietta E. Cameron, Jason Andrae, Andrew Petriccione, Brett Hodges
  * Last Modified: 4-17-2016
  *
  *
