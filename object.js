@@ -15,10 +15,15 @@ var yAxis = false;
 var zAxis = false;
 
 var change = false; // boolean for if it is necessary to update coords
-var mouseDown = false; // boolean for if mouse is being pressed
 var delayGlobal = 500; // global delay value in milliseconds
 var coords = []; // array to store coord objects
 var queueLength = 8; //number of coords to be stored
+
+// Flags
+var isMouseDown = false; // flag for if mouse is being pressed
+var isWithinCanvas = false; // flag for if mouse is within canvas
+var isPaintEvent = false; // flag for if should be painting
+var isPaintDelay = false; //flag for limiting number of paint events in a given interval
 
 var theta = [0, 0, 0];
 
@@ -27,6 +32,12 @@ var elementCount; //number of indices
 var indexCount = 0; // Offset for previous ring indices
 
 /**
+ * Function for handling state of isPaintEvent flag. Flag gets set to true if all
+ *  conditions are met.
+ * Conditions:
+ * 1. Mouse is being pressed
+ * 2. Mouse is within canvas window
+ *
  * Test cases:
  * User mousedown on canvas, mouseup on canvas
  * User mousedown on canvas, drags off canvas, mouseup off canvas
@@ -38,23 +49,52 @@ var indexCount = 0; // Offset for previous ring indices
 function testCoords(){
   var $canvas = $('#gl-canvas'),
       myInterval;
+/*
+  // Add event handler for when user clicks on canvas
+  $canvas.on('mousedown', function(){
 
 
+    mouseDown = true;
+    console.log(mouseDown)
+    $(window).on('mouseup',function(){
+      if(mouseDown){
+        mouseDown = false;
+        console.log(mouseDown)
+      }
+    })
+  });*/
 
+  // mouse left canvas, turn off flag
+  $canvas.on('mouseout',function(){
+    isWithinCanvas = false;
+  })
 
-  $canvas.on('hover', function(){
-    if(mouseDown){
-      myInterval = window.setInterval(paint,delayGlobal);
-    }
-  }, function(){
-    window.clearInterval(myInterval);
+  // mouse entered canvas, turn on flag
+  $canvas.on('mouseover', function(){
+    isWithinCanvas = true;
+  })
+
+  // mouse button pressed, turn on flag and provide event handler for turning off flag
+  $(document).on('mousedown', function(){
+    isMouseDown = true;
+    $(window).on('mouseup', function(){
+      isMouseDown = false;
+    });
   });
+
 }
 
 /**
  * Function to update page every render frame
  */
 function update(){
+  // update paintEvent
+  isPaintEvent = isMouseDown && isWithinCanvas;
+  // if paint event is true, user is correctly engaging paint, try to paint
+  if(isPaintEvent){
+    paintEvent();
+  }
+
   // if a change has been made, update window to reflect
   if(change){
     // Remove all elements within coord table
@@ -72,6 +112,16 @@ function update(){
   }
 }
 
+function paintEvent(){
+  console.log('painting')
+  //if()
+  //setTimeout()
+}
+
+function paint(){
+  console.log("painting")
+}
+
 /**
  * Function to initialize page logic on page load
  */
@@ -81,18 +131,6 @@ function initWindow(){
     coords.push({'x':i,'y':i});
   }
   change = true;
-
-  // Add event handler for when user clicks on canvas
-  $(window).on('mousedown', function(){
-    mouseDown = true;
-    console.log(mouseDown)
-    $(window).on('mouseup',function(){
-      if(mouseDown){
-        mouseDown = false;
-        console.log(mouseDown)
-      }
-    })
-  });
 }
 
 function canvasMain() {
