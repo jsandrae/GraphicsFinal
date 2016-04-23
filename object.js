@@ -15,7 +15,7 @@ var yAxis = false;
 var zAxis = false;
 
 var change = false; // boolean for if it is necessary to update coords
-var delayGlobal = 2000; // global delay value in milliseconds
+var delayGlobal = 500; // global delay value in milliseconds
 var coords = []; // array to store coord objects
 var queueLength = 8; //number of coords to be stored
 
@@ -64,23 +64,7 @@ function testCoords(){
     })
   });*/
 
-  // mouse left canvas, turn off flag
-  $canvas.on('mouseout',function(){
-    isWithinCanvas = false;
-  })
 
-  // mouse entered canvas, turn on flag
-  $canvas.on('mouseover', function(){
-    isWithinCanvas = true;
-  })
-
-  // mouse button pressed, turn on flag and provide event handler for turning off flag
-  $(document).on('mousedown', function(){
-    isMouseDown = true;
-    $(window).on('mouseup', function(){
-      isMouseDown = false;
-    });
-  });
 
 }
 
@@ -139,6 +123,23 @@ function initWindow(){
     coords.push({'x':i,'y':i});
   }
   change = true;
+  // mouse left canvas, turn off flag
+  $('#gl-canvas').on('mouseout',function(){
+    isWithinCanvas = false;
+  })
+
+  // mouse entered canvas, turn on flag
+  $('#gl-canvas').on('mouseover', function(){
+    isWithinCanvas = true;
+  })
+
+  // mouse button pressed, turn on flag and provide event handler for turning off flag
+  $(document).on('mousedown', function(){
+    isMouseDown = true;
+    $(window).on('mouseup', function(){
+      isMouseDown = false;
+    });
+  });
 }
 
 function canvasMain() {
