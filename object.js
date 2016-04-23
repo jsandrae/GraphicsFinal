@@ -13,8 +13,12 @@ var gl;
 var xAxis = true;
 var yAxis = false;
 var zAxis = false;
-var mouseDown = false;
-var delayGlobal = 100;
+
+var change = false; // boolean for if it is necessary to update coords
+var mouseDown = false; // boolean for if mouse is being pressed
+var delayGlobal = 500; // global delay value in milliseconds
+var coords = []; // array to store coord objects
+var queueLength = 8; //number of coords to be stored
 
 var theta = [0, 0, 0];
 
@@ -22,15 +26,70 @@ var thetaLoc;
 var elementCount; //number of indices
 var indexCount = 0; // Offset for previous ring indices
 
+/**
+ * Test cases:
+ * User mousedown on canvas, mouseup on canvas
+ * User mousedown on canvas, drags off canvas, mouseup off canvas
+ * mousedown off canvas, mouseup off canvas
+ * mousedown off canvas, drags on canvas, mouseup on canvas
+ * mousedown on canvas, drags off canvas, drags on canvas, mouseup on canvas
+ * mousedown off canvas, drags on canvas, drags off canvas, mouseup off canvas
+ */
 function testCoords(){
+  var $canvas = $('#gl-canvas'),
+      myInterval;
 
-  $("#gl-canvas").on('mousedown', function(){
+
+
+
+  $canvas.on('hover', function(){
+    if(mouseDown){
+      myInterval = window.setInterval(paint,delayGlobal);
+    }
+  }, function(){
+    window.clearInterval(myInterval);
+  });
+}
+
+/**
+ * Function to update page every render frame
+ */
+function update(){
+  // if a change has been made, update window to reflect
+  if(change){
+    // Remove all elements within coord table
+    $('#coords').empty;
+    var $row = $('<tr>');
+    // for each set of coordinates
+    for(var i=0; i<coords.length; i++){
+      // pull out x&y and add to a data field in table
+      var $data = $('<td>').text(coords[i].x+', '+coords[i].y);
+      $row.append($data);
+    }
+    $('#coords').append($row);
+    // Set change to false
+    change = !change;
+  }
+}
+
+/**
+ * Function to initialize page logic on page load
+ */
+function initWindow(){
+  // fill queue with empty coordinates
+  for(var i=0; i<queueLength; i++){
+    coords.push({'x':i,'y':i});
+  }
+  change = true;
+
+  // Add event handler for when user clicks on canvas
+  $(window).on('mousedown', function(){
     mouseDown = true;
-    console.log("true")
+    console.log(mouseDown)
     $(window).on('mouseup',function(){
       if(mouseDown){
         mouseDown = false;
-        console.log("false")
+        console.log(mouseDown)
       }
     })
   });
@@ -38,6 +97,8 @@ function testCoords(){
 
 function canvasMain() {
     //load webGL
+    initWindow();
+    console.log(coords)
     var canvas = document.getElementById("gl-canvas"); //must be in html
     gl = WebGLUtils.setupWebGL(canvas);
     if (!gl) {
@@ -75,6 +136,7 @@ function canvasMain() {
 
     testCoords();
 
+    render();
     //drawObject(gl, program, piece);
 
 }//CanvasMain
@@ -134,11 +196,11 @@ function render()
       theta[2] += 2.0; //rotate by 2 degrees
     }
 
-    checkDown();
+    update();
 
-    gl.uniform3fv(thetaLoc, theta); //find theta in html and set it
+    //gl.uniform3fv(thetaLoc, theta); //find theta in html and set it
 
-    gl.drawElements(gl.TRIANGLES, elementCount, gl.UNSIGNED_SHORT, 0);  //draw elements; elementCount number of indices
+    //gl.drawElements(gl.TRIANGLES, elementCount, gl.UNSIGNED_SHORT, 0);  //draw elements; elementCount number of indices
 
     requestAnimFrame( render );
 }

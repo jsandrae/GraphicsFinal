@@ -8,3 +8,20 @@
 body {
   background-color: #DDD;
 }
+
+table {
+  border-style: solid;
+  border-left-width: 1px;
+  border-right-width: 1px;
+  border-color: #333;
+  color: #E5B13A;
+  background-color: #333;
+}
+
+td {
+  padding: 2px 10px;
+}
+
+td:nth-child(odd) {
+   background-color: #666;
+}
