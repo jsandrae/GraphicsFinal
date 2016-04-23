@@ -15,7 +15,7 @@ var yAxis = false;
 var zAxis = false;
 
 var change = false; // boolean for if it is necessary to update coords
-var delayGlobal = 500; // global delay value in milliseconds
+var delayGlobal = 2000; // global delay value in milliseconds
 var coords = []; // array to store coord objects
 var queueLength = 8; //number of coords to be stored
 
@@ -113,13 +113,21 @@ function update(){
 }
 
 function paintEvent(){
-  console.log('painting')
-  //if()
-  //setTimeout()
+  // Painting event is true, check to see if we're already painting
+  if (!isPaintDelay){ // if isPaintDelay === false
+    var test = isPaintDelay;
+    // Start paint event, flip delay flag
+    isPaintDelay = !isPaintDelay; // isPaintDelay === true
+    test = isPaintDelay;
+    setTimeout(paint,delayGlobal);
+  }
 }
 
 function paint(){
   console.log("painting")
+  // done with painting event, flip delay flag
+  isPaintDelay = !isPaintDelay;
+  var test = isPaintDelay;
 }
 
 /**
