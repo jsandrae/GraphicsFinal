@@ -1,7 +1,7 @@
 /**
  *
  * @author:  Edward Angel
- * Modified by Marietta E. Cameron, Jason Andrae
+ * Modified by Marietta E. Cameron, Jason Andrae, Andrew
  * Last Modified: 4-17-2016
  *
  *
@@ -14,11 +14,15 @@ var xAxis = true;
 var yAxis = false;
 var zAxis = false;
 
-var change = false; // boolean for if it is necessary to update coords
+var isChange = false; // boolean for if it is necessary to update coords
 var delayGlobal = 500; // global delay value in milliseconds
 var coords = []; // array to store coord objects
-var queueLength = 8; //number of coords to be stored
-var myTimeout;
+var queueLength = 11; //number of coords to be stored
+var myTimeout; // timeout id to be cleared upon completion
+var coordTimeout; // timeout id for coord update
+var xCoord, yCoord; // Global coordinate for mouse location on page, to be updated by event handlers
+
+
 
 // Flags
 var isMouseDown = false; // flag for if mouse is being pressed
@@ -37,9 +41,18 @@ var thetaLoc;
 var elementCount; //number of indices
 var indexCount = 0; // Offset for previous ring indices
 
-function testCoords(){
-  var $canvas = $('#gl-canvas');
+function testCoords(event){
+  var x = xCoord,
+      y = yCoord;
 
+  var newCoords = {'x':x,'y':y};
+
+  // Add new coordinate to front of coords array
+  coords.unshift(newCoords);
+  // Pop off last element of array (oldest)
+  coords.pop();
+  // Toggle isChange flag
+  isChange = !isChange;
 }
 
 /**
@@ -60,34 +73,40 @@ function update(){
   }
 
   // if a change has been made, update window to reflect
-  if(change){
+  if(isChange){
     // Remove all elements within coord table
-    $('#coords').empty;
+    $('#coords').empty();
     var $row = $('<tr>');
     // for each set of coordinates
     for(var i=0; i<coords.length; i++){
       // pull out x&y and add to a data field in table
-      var $data = $('<td>').text(coords[i].x+', '+coords[i].y);
+      var $data = $('<td>').text(coords[i].x+','+coords[i].y);
       $row.append($data);
     }
     $('#coords').append($row);
-    // Set change to false
-    change = !change;
+    // Set isChange to false
+    isChange = !isChange;
   }
 }
 
+/**
+ * Function to trigger a paint event, but wrap in a delay function
+ */
 function paintEvent(){
   // Painting event is true, check to see if we're already painting
   // Start paint event, flip delay flag
   isPaintDelay = !isPaintDelay; // isPaintDelay === true
   // clear previous timeout and set new one
   clearTimeout(myTimeout);
-  myTimeout = setTimeout(paint,delayGlobal);
+  myTimeout = setTimeout(doPaint,delayGlobal);
 }
 
-function paint(){
+/**
+ * Function to actually perform the painting
+ */
+function doPaint(){
   console.log("painting")
-
+  $canvas.trigger('paint:on'); // trigger paint:on custom canvas event
   // done with painting event, flip delay flag
   isPaintDelay = !isPaintDelay;
 }
@@ -105,7 +124,7 @@ function initWindow(){
   for(var i=0; i<queueLength; i++){
     coords.push({'x':i,'y':i});
   }
-  change = true;
+  isChange = true;
   // mouse left canvas, turn off flag
   $canvas.on('mouseout',function(){
     isWithinCanvas = false;
@@ -116,13 +135,39 @@ function initWindow(){
     isWithinCanvas = true;
   })
 
+  // create custom event handler for when paint needs to occur
+  $canvas.on('paint:on',function(event){
+    testCoords();
+  })
+
   // mouse button pressed, turn on flag and provide event handler for turning off flag
-  $document.on('mousedown', function(){
+  $document.on('mousedown', function(e){
     isMouseDown = true;
+    //update coordinates if mouse is within canvas
+    if(isWithinCanvas){
+      updateCoords(e);
+    }
+
+    // add event handler for when mouse moves within canvas
+    $document.on('mousemove', function(evt){
+      if(isWithinCanvas){
+        updateCoords(evt);
+      }
+    })
+
     $window.on('mouseup', function(){
       isMouseDown = false;
     });
   });
+}
+
+function updateCoords(e){
+  var offset = $canvas.offset();
+  var x = Math.floor(e.pageX - offset.left);
+  var y = Math.floor(e.pageY - offset.top);
+
+  xCoord = x;
+  yCoord = y;
 }
 
 function canvasMain() {
