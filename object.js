@@ -15,7 +15,7 @@ var yAxis = false;
 var zAxis = false;
 
 var isChange = false; // boolean for if it is necessary to update coords
-var delayGlobal = 500; // global delay value in milliseconds
+var delayGlobal = 100; // global delay value in milliseconds
 var coords = []; // array to store coord objects
 var queueLength = 11; //number of coords to be stored
 var myTimeout; // timeout id to be cleared upon completion
@@ -45,7 +45,7 @@ function testCoords(event){
   var x = xCoord,
       y = yCoord;
 
-  var newCoords = {'x':x,'y':y};
+  var newCoords = translateCoords(x,y);
 
   // Add new coordinate to front of coords array
   coords.unshift(newCoords);
@@ -53,6 +53,21 @@ function testCoords(event){
   coords.pop();
   // Toggle isChange flag
   isChange = !isChange;
+}
+
+/**
+ * Function to take pixel coordinates and transpose them to the webGL coord system
+ */
+function translateCoords(x,y){
+  debugger;
+  var midX = Math.floor($canvas.width()/2);
+  var midY = Math.floor($canvas.height()/2);
+
+  // transposed x = (x-mid)/mid
+  var xT = myRound((x-midX)/midX,3);
+  // transposed y = (mid-y)/mid
+  var yT = myRound((midY-y)/midY,3);
+  return {'x':xT,'y':yT};
 }
 
 /**
@@ -159,12 +174,31 @@ function initWindow(){
       isMouseDown = false;
     });
   });
+
+  //event listeners for buttons
+  $('#colorButton').on('click',function() {
+    openPalette(this);
+
+
+  });
+
+  $('#yButton').on('click',function() {
+    $(this).toggleClass('btn-danger');
+    $(this).toggleClass('btn-success');
+    yAxis = !yAxis;
+  });
+
+  $('#zButton').on('click',function() {
+    $(this).toggleClass('btn-danger');
+    $(this).toggleClass('btn-success');
+    zAxis = !zAxis;
+  });
 }
 
 function updateCoords(e){
   var offset = $canvas.offset();
-  var x = Math.floor(e.pageX - offset.left);
-  var y = Math.floor(e.pageY - offset.top);
+  var x = e.pageX - offset.left;
+  var y = e.pageY - offset.top;
 
   xCoord = x;
   yCoord = y;
@@ -189,25 +223,6 @@ function canvasMain() {
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-
-    //event listeners for buttons
-    $('#xButton').on('click',function() {
-      $(this).toggleClass('btn-danger'); //toggles between red and green buttons
-      $(this).toggleClass('btn-success');
-      xAxis = !xAxis; //toggles axis
-    });
-
-    $('#yButton').on('click',function() {
-      $(this).toggleClass('btn-danger');
-      $(this).toggleClass('btn-success');
-      yAxis = !yAxis;
-    });
-
-    $('#zButton').on('click',function() {
-      $(this).toggleClass('btn-danger');
-      $(this).toggleClass('btn-success');
-      zAxis = !zAxis;
-    });
 
     render();
     //drawObject(gl, program, piece);
@@ -278,6 +293,10 @@ function render()
     requestAnimFrame( render );
 }
 
+function openPalette($button){
+
+}
+
 /**
  * Function to randomly select a color from the predetermined JSON object, and
  * randomly select a saturation value
@@ -342,17 +361,10 @@ function getPalette(paletteSize){
 }
 
 /**
- * Function to delay the check for a certain function some action to a predetermined interval
+ * Function to round numbers to a given number of decimal points
  */
-$(function() {
-  var timer_id;
-  var delay = 100;
-/*
-  $(element).on('event',function(){
-    clearTimeout(timer_id);
-    timer_id = setTimeout(function() {
-      functionToPerform();
-    }, delay);
-  });
-*/
-});
+function myRound(number, decimals){
+  debugger;
+  var exp = Math.pow(10,decimals);
+  return Math.round(number*exp)/exp;
+}
