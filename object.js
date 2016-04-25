@@ -59,12 +59,26 @@ function testCoords(event){
  * Function to take pixel coordinates and transpose them to the webGL coord system
  */
 function translateCoords(x,y){
-
   // transposed x = (x-mid)/mid
   var xT = myRound((x-midX)/midX,3);
   // transposed y = (mid-y)/mid
   var yT = myRound((midY-y)/midY,3);
+  if(xT>1 || xT<-1){
+    xT = myRound(xT,0);
+  }
+  if(yT>1 || yT<-1){
+    yT = myRound(yT,0);
+  }
   return {'x':xT,'y':yT};
+}
+
+/**
+ * Function to calulate the midpoint of canvas, which is used in translating
+ *   page coordinates to WebGL coordinates
+ */
+function calulateMidpoints(){
+  midX = Math.floor($canvas.width()/2);
+  midY = Math.floor($canvas.height()/2);
 }
 
 /**
@@ -131,8 +145,7 @@ function initWindow(){
   $window = $(window);
   $canvas = $('#gl-canvas');
   $document = $(document);
-  midX = Math.floor($canvas.width()/2);
-  midY = Math.floor($canvas.height()/2);
+  calulateMidpoints();
 
   // fill queue with empty coordinates
   for(var i=0; i<queueLength; i++){
@@ -197,8 +210,7 @@ function initWindow(){
 }
 
 function resizeWindow(){
-  midX = Math.floor($canvas.width()/2);
-  midY = Math.floor($canvas.height()/2);
+  calulateMidpoints();
 }
 
 function updateCoords(e){
