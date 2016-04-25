@@ -61,8 +61,10 @@
     <script type="text/javascript" src="http://arden.cs.unca.edu/~cameron/Angel/SourceCode/Common/initShaders.js"></script>
     <script type="text/javascript" src="http://arden.cs.unca.edu/~cameron/Angel/SourceCode/Common/MV.js"></script>
 
-    <link rel="stylesheet" type="text/css" media="screen"
-     href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
      <link href="style.css" rel="stylesheet" type="text/css">
 
 
@@ -76,12 +78,56 @@
             </canvas>
         </div>
         <div class = "well center" id="buttonContainer">
-            <button type="button" class="btn btn-default btn-lg" id= "colorButton">Select Color</button>
-            <button type="button" class="btn btn-danger btn-lg" id= "yButton">Rotate Y</button>
-            <button type="button" class="btn btn-danger btn-lg" id= "zButton">Rotate Z</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-color" title="Color Picker"
+                    data-placement="top">Color</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover" title="Popover Header"
+                    data-content="Some content inside the popover" data-placement="top">Size</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover" title="Popover Header"
+                    data-content="Some content inside the popover" data-placement="top">Diffusion</button>
+        </div>
+        <div class="container" id="color_picker" style="display: none">
+            <div class="row">
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/red(230,0,0).png" name="red" class="img-rounded" id="230, 0, 0"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/green(46,184,46).png" name="green" class="img-rounded" id="46, 184, 46"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/blue(0,102,255).png" name="blue" class="img-rounded" id="0, 102, 255"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/yellow(255,255,0).png" name="green" class="img-rounded" id="255, 255, 0"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/purple(51,51,153).png" name="green" class="img-rounded" id="51, 51, 153"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/pink(255,102,204).png" name="green" class="img-rounded" id="255, 102, 404"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/brown(153,102,51).png" name="green" class="img-rounded" id="153, 102, 51"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/orange(255,153,51).png" name="green" class="img-rounded" id="255, 153, 51"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+                <div class="col-lg-3 col-md-4 col-xs-6">
+                    <input type="image" src="images/black(0,0,0).png" name="green" class="img-rounded" id="0, 0, 0"
+                           width="40" height="40" onClick="reply_click(this.id)"/>
+                </div>
+            </div>
+
         </div>
 
     </body>
-    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <!--<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>-->
     <script type="text/javascript" src="object.js"></script>
 </html>

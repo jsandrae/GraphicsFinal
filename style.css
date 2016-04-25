@@ -25,3 +25,10 @@ td {
 td:nth-child(odd) {
    background-color: #666;
 }
+
+.btn {
+    padding-left: 50px;
+    padding-right: 50px;
+    margin-left: 35px;
+    margin-right: 35px;
+}

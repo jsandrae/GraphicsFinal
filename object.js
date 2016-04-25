@@ -386,3 +386,20 @@ function myRound(number, decimals){
   var exp = Math.pow(10,decimals);
   return Math.round(number*exp)/exp;
 }
+
+/**
+ * Function to handle popovers
+ */
+$(document).ready(function(){
+    $('[data-toggle="popover-color"]').popover({
+        html : true,
+        content : function () {
+            return $('#color_picker').html();
+        }
+    });
+});
+
+function reply_click(color)
+{
+    console.log(color)
+}
