@@ -22,7 +22,7 @@ var myTimeout; // timeout id to be cleared upon completion
 var coordTimeout; // timeout id for coord update
 var xCoord, yCoord; // Global coordinate for mouse location on page, to be updated by event handlers
 
-
+var midX, midY; // mid value for canvas, only recalculated on window resize
 
 // Flags
 var isMouseDown = false; // flag for if mouse is being pressed
@@ -59,9 +59,6 @@ function testCoords(event){
  * Function to take pixel coordinates and transpose them to the webGL coord system
  */
 function translateCoords(x,y){
-  debugger;
-  var midX = Math.floor($canvas.width()/2);
-  var midY = Math.floor($canvas.height()/2);
 
   // transposed x = (x-mid)/mid
   var xT = myRound((x-midX)/midX,3);
@@ -134,6 +131,8 @@ function initWindow(){
   $window = $(window);
   $canvas = $('#gl-canvas');
   $document = $(document);
+  midX = Math.floor($canvas.width()/2);
+  midY = Math.floor($canvas.height()/2);
 
   // fill queue with empty coordinates
   for(var i=0; i<queueLength; i++){
@@ -175,6 +174,8 @@ function initWindow(){
     });
   });
 
+  $window.on('resize', resizeWindow());
+
   //event listeners for buttons
   $('#colorButton').on('click',function() {
     openPalette(this);
@@ -193,6 +194,11 @@ function initWindow(){
     $(this).toggleClass('btn-success');
     zAxis = !zAxis;
   });
+}
+
+function resizeWindow(){
+  midX = Math.floor($canvas.width()/2);
+  midY = Math.floor($canvas.height()/2);
 }
 
 function updateCoords(e){
