@@ -1,10 +1,7 @@
 /**
- *
  * @author:  Edward Angel
  * Modified by Marietta E. Cameron, Jason Andrae, Andrew Petriccione, Brett Hodges
- * Last Modified: 4-17-2016
- *
- *
+ * Last Modified: 4-26-2016
  */
 
 var gl;
@@ -45,7 +42,7 @@ var indexCount = 0; // Offset for previous ring indices
 var selected_rgb_color;
 var selected_brush_size;
 
-    function testCoords(event){
+function testCoords(event){
   var x = xCoord,
       y = yCoord;
 
@@ -193,23 +190,33 @@ function initWindow(){
 
   $window.on('resize', resizeWindow());
 
-  //event listeners for buttons
+  //event listeners for buttons and popovers
   $('#colorButton').on('click',function() {
     openPalette(this);
-
-
   });
 
-  $('#yButton').on('click',function() {
-    $(this).toggleClass('btn-danger');
-    $(this).toggleClass('btn-success');
-    yAxis = !yAxis;
+  //event handler for color popover
+  $('[data-toggle="popover-color"]').popover({
+      html : true,
+      content : function () {
+          return $('#color_picker').html();
+      }
   });
 
-  $('#zButton').on('click',function() {
-    $(this).toggleClass('btn-danger');
-    $(this).toggleClass('btn-success');
-    zAxis = !zAxis;
+  //Event handler for size popover
+  $('[data-toggle="popover-size"]').popover({
+      html : true,
+      content : function () {
+          return $('#size_picker').html();
+      }
+  });
+
+  //Event handler for diffusion popover
+  $('[data-toggle="popover-diffusion"]').popover({
+      html : true,
+      content : function () {
+          return $('#diffusion_settings').html();
+      }
   });
 }
 
@@ -239,6 +246,9 @@ function canvasMain() {
     // clear the background (with white)
     gl.clearColor(0.95, 0.95, 0.95, 1.0);
     gl.enable(gl.DEPTH_TEST);//enabling z buffer
+    gl.enable(gl.DITHER);//enable dithering
+    gl.enable(gl.BLEND);//enable blending
+    gl.depthMask(gl.FALSE);// hide transparent elements behind opaque ones
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //using z buffer and colors, reset both
 
     //  Load shaders and initialize attribute buffers
@@ -386,42 +396,9 @@ function getPalette(paletteSize){
  * Function to round numbers to a given number of decimal points
  */
 function myRound(number, decimals){
-  debugger;
   var exp = Math.pow(10,decimals);
   return Math.round(number*exp)/exp;
 }
-
-
-
-/**
- * Function for color popover
- */
-$('[data-toggle="popover-color"]').popover({
-    html : true,
-    content : function () {
-        return $('#color_picker').html();
-    }
-});
-
-/**
- * Function for size popover
- */
-$('[data-toggle="popover-size"]').popover({
-    html : true,
-    content : function () {
-        return $('#size_picker').html();
-    }
-});
-
-/**
- * Function for size popover
- */
-$('[data-toggle="popover-diffusion"]').popover({
-    html : true,
-    content : function () {
-        return $('#diffusion_settings').html();
-    }
-});
 
 /**
  * Function for retrieving RGB colors from color clicked
@@ -445,5 +422,3 @@ function size_selection() {
 $(function() {
     $('#toggle-one').bootstrapToggle();
 })
-
-
