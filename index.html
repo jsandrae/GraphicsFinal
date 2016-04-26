@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <!--
    Author:  Edward Angel
-   Modified by: Marietta E. Cameron, Jason Andrae
-   Source: Modification from Code supplement to textbook-->
+   Modified by: Marietta E. Cameron, Jason Andrae, Brett Hodges
+   Source: Modification from Code supplement to textbook
+-->
+
 <html>
   <head>
 
@@ -65,11 +67,13 @@
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 
-     <link href="style.css" rel="stylesheet" type="text/css">
+     <link href="CSS/style.css" rel="stylesheet" type="text/css">
 
 
 </head>
     <body onload="canvasMain()">
+
+        <!--  WebGL Canvas  -->
         <div class = "container center" id="canvasContainer">
             <h1>Paint Your Canvas</h1>
             <table class="center" id="coords"></table>
@@ -77,14 +81,18 @@
                 oops ... your browser doesn't support the HTML5 canvas element
             </canvas>
         </div>
+
+        <!--  Buttons  -->
         <div class = "well center" id="buttonContainer">
             <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-color" title="Color Picker"
-                    data-placement="top">Color</button>
-            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover" title="Popover Header"
-                    data-content="Some content inside the popover" data-placement="top">Size</button>
-            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover" title="Popover Header"
-                    data-content="Some content inside the popover" data-placement="top">Diffusion</button>
+                    data-placement="top" data-trigger="focus">Color</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-size" title="Brush Size"
+                    data-placement="top">Size</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Diffusion"
+                    data-placement="top">Diffusion</button>
         </div>
+
+        <!--  Color Button Popover Content  -->
         <div class="container" id="color_picker" style="display: none">
             <div class="row">
                 <div class="col-lg-3 col-md-4 col-xs-6">
@@ -124,10 +132,33 @@
                            width="40" height="40" onClick="reply_click(this.id)"/>
                 </div>
             </div>
+        </div>
 
+        <!--  Brush Size Popover Content  -->
+        <div class="container" id="size_picker" style="display: none">
+            <p style="display: inline-block">
+                <b>Size Selected: </b>
+                <b id="size_selected"></b>
+            </p>
+            <p style="display: inline-block">
+                <b>1 </b>
+                <span style="display: inline-block">
+                    <input type="range" id="size_selection" min="1" max="50" step="1" onClick="size_selection()">
+                </span>
+                <b> 50</b>
+            </p>
+
+        </div>
+
+        <!--  Diffusion Popover Content  -->
+        <div class="container" id="diffusion_settings" style="display: none">
+            <div class="input-group">
+                <span>Enable Diffusion Effect: </span>
+                <input type="checkbox" id="diffusion_toggle">
+            </div>
         </div>
 
     </body>
     <!--<script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>-->
-    <script type="text/javascript" src="object.js"></script>
+    <script type="text/javascript" src="Scripts/object.js"></script>
 </html>
