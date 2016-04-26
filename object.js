@@ -190,22 +190,11 @@ function initWindow(){
   $window.on('resize', resizeWindow());
 
   //event listeners for buttons
-  $('#colorButton').on('click',function() {
-    openPalette(this);
-
-
-  });
-
-  $('#yButton').on('click',function() {
-    $(this).toggleClass('btn-danger');
-    $(this).toggleClass('btn-success');
-    yAxis = !yAxis;
-  });
-
-  $('#zButton').on('click',function() {
-    $(this).toggleClass('btn-danger');
-    $(this).toggleClass('btn-success');
-    zAxis = !zAxis;
+  $('[data-toggle="popover-color"]').popover({
+      html : true,
+      content : function () {
+          return $('#color_picker').html();
+      }
   });
 }
 
@@ -382,7 +371,6 @@ function getPalette(paletteSize){
  * Function to round numbers to a given number of decimal points
  */
 function myRound(number, decimals){
-  debugger;
   var exp = Math.pow(10,decimals);
   return Math.round(number*exp)/exp;
 }
@@ -390,15 +378,6 @@ function myRound(number, decimals){
 /**
  * Function to handle popovers
  */
-$(document).ready(function(){
-    $('[data-toggle="popover-color"]').popover({
-        html : true,
-        content : function () {
-            return $('#color_picker').html();
-        }
-    });
-});
-
 function reply_click(color)
 {
     console.log(color)
