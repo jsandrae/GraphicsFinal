@@ -14,6 +14,7 @@ var zAxis = false;
 var isChange = false; // boolean for if it is necessary to update coords
 var delayGlobal = 100; // global delay value in milliseconds
 var coords = []; // array to store coord objects
+var colors = []; // array to store colors for each point
 var queueLength = 11; //number of coords to be stored
 var myTimeout; // timeout id to be cleared upon completion
 var coordTimeout; // timeout id for coord update
@@ -26,15 +27,13 @@ var isMouseDown = false; // flag for if mouse is being pressed
 var isWithinCanvas = false; // flag for if mouse is within canvas
 var isPaintEvent = false; // flag for if should be painting
 var isPaintDelay = false; //flag for limiting number of paint events in a given interval
+var debug = true;
 
 // jQuery selector variables
 var $window,
     $canvas,
     $document;
 
-var theta = [0, 0, 0];
-
-var thetaLoc;
 var elementCount; //number of indices
 var indexCount = 0; // Offset for previous ring indices
 
@@ -97,23 +96,26 @@ function update(){
   // if paint event is true, user is correctly engaging paint, try to paint
   if(isPaintEvent){
     paintEvent();
+    // if a change has been made, update window to reflect
+    if(isChange){
+      if(debug){
+        // Remove all elements within coord table
+        $('#coords').empty();
+        var $row = $('<tr>');
+        // for each set of coordinates
+        for(var i=0; i<coords.length; i++){
+          // pull out x&y and add to a data field in table
+          var $data = $('<td>').text(coords[i].x+','+coords[i].y);
+          $row.append($data);
+        }
+        $('#coords').append($row);
+      }
+      // Set isChange to false
+      isChange = !isChange;
+    }
   }
 
-  // if a change has been made, update window to reflect
-  if(isChange){
-    // Remove all elements within coord table
-    $('#coords').empty();
-    var $row = $('<tr>');
-    // for each set of coordinates
-    for(var i=0; i<coords.length; i++){
-      // pull out x&y and add to a data field in table
-      var $data = $('<td>').text(coords[i].x+','+coords[i].y);
-      $row.append($data);
-    }
-    $('#coords').append($row);
-    // Set isChange to false
-    isChange = !isChange;
-  }
+
 }
 
 /**
@@ -148,11 +150,13 @@ function initWindow(){
   $document = $(document);
   calulateMidpoints();
 
-  // fill queue with empty coordinates
-  for(var i=0; i<queueLength; i++){
-    coords.push({'x':i,'y':i});
+  if(debug){
+    // fill queue with empty coordinates
+    for(var i=0; i<queueLength; i++){
+      coords.push({'x':i,'y':i});
+    }
+    update();
   }
-  isChange = true;
   // mouse left canvas, turn off flag
   $canvas.on('mouseout',function(){
     isWithinCanvas = false;
@@ -165,7 +169,9 @@ function initWindow(){
 
   // create custom event handler for when paint needs to occur
   $canvas.on('paint:on',function(event){
-    testCoords();
+    if(debug){
+      testCoords();
+    }
   })
 
   // mouse button pressed, turn on flag and provide event handler for turning off flag
@@ -257,7 +263,6 @@ function canvasMain() {
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     render();
-    //drawObject(gl, program, piece);
 
 }//CanvasMain
 
@@ -294,7 +299,6 @@ function drawObject(gl, program, obj) {
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    thetaLoc = gl.getUniformLocation(program, "theta");
     elementCount = obj.indices.length;
 
     render();
@@ -305,28 +309,12 @@ function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    //only spin axis that are currently turned on (true)
-    if (xAxis){
-      theta[0] += 2.0; //rotate by 2 degrees
-    }
-    if (yAxis){
-      theta[1] += 2.0; //rotate by 2 degrees
-    }
-    if (zAxis){
-      theta[2] += 2.0; //rotate by 2 degrees
-    }
 
     update();
-
-    //gl.uniform3fv(thetaLoc, theta); //find theta in html and set it
 
     //gl.drawElements(gl.TRIANGLES, elementCount, gl.UNSIGNED_SHORT, 0);  //draw elements; elementCount number of indices
 
     requestAnimFrame( render );
-}
-
-function openPalette($button){
-
 }
 
 /**
@@ -336,27 +324,17 @@ function openPalette($button){
 function getColor(isSat){
   var colorVals = [];
   var i;
-  var palette = [
-  	  {"name":"vivid_yellow","rgb":[255, 179, 0]},
-      {"name":"vivid_orange","rgb":[255, 104, 0]},
-  	  {"name":"very_light_blue","rgb":[166, 189, 215]},
-  	  {"name":"vivid_red","rgb":[193, 0, 32]},
-  	  {"name":"grayish_yellow","rgb":[206, 162, 98]},
-  	  {"name":"medium_gray","rgb":[129, 112, 102]},
-  	  {"name":"vivid_green","rgb":[0, 125, 52]},
-  	  {"name":"strong_purplish_pink","rgb":[246, 118, 142]},
-  	  {"name":"strong_blue","rgb":[0, 83, 138]},
-  	  {"name":"strong_yellowish_pink","rgb":[255, 122, 92]},
-  	  {"name":"strong_violet","rgb":[83, 55, 122]},
-  	  {"name":"vivid_orange_yellow","rgb":[255, 142, 0]},
-  	  {"name":"strong_purplish_red","rgb":[179, 40, 81]},
-  	  {"name":"vivid_greenish_yellow","rgb":[244, 200, 0]},
-  	  {"name":"strong_reddish_brown","rgb":[127, 24, 13]},
-  	  {"name":"vivid_yellowish_green","rgb":[147, 170, 0]},
-  	  {"name":"deep_yellowish_brown","rgb":[89, 51, 21]},
-  	  {"name":"vivid_reddish_orange","rgb":[241, 58, 19]},
-  	  {"name":"dark_olive_green","rgb":[35, 44, 22]}
-    ];
+  var palette = {
+  	    red:[230, 0, 0],
+  	    green:[46, 184, 46],
+  	    blue:[0, 102, 255],
+  	    yellow:[255, 255, 0],
+  	    purple:[51, 51, 153],
+  	    black:[0, 0, 0],
+  	    pink:[255, 102, 404],
+  	    brown:[153, 102, 51],
+  	    orange:[255, 153, 51]
+    };
   //randomly select one color from palette
   var rgbVals = palette[Math.floor(Math.random()*palette.length)].rgb;
   for (i=0; i<rgbVals.length; i++) {
@@ -404,8 +382,21 @@ function myRound(number, decimals){
  * Function for retrieving RGB colors from color clicked
  * @param color
  */
-function reply_click(color)
+function reply_click(colorName)
 {
+    var palette = {
+        'red':[230, 0, 0],
+        'green':[46, 184, 46],
+        'blue':[0, 102, 255],
+        'yellow':[255, 255, 0],
+        'purple':[51, 51, 153],
+        'black':[0, 0, 0],
+        'pink':[255, 102, 404],
+        'brown':[153, 102, 51],
+        'orange':[255, 153, 51]
+    };
+    var color = palette[colorName];
+    color.push(0.5);
     selected_rgb_color = color;
     console.log(color)
 }
@@ -418,7 +409,3 @@ function size_selection() {
     console.log(selected_brush_size);
     document.getElementById("size_selected").innerHTML = selected_brush_size;
 }
-
-$(function() {
-    $('#toggle-one').bootstrapToggle();
-})

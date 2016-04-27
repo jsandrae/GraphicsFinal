@@ -16,42 +16,18 @@
       attribute  vec4 vPosition;
       attribute  vec4 vColor;
       varying vec4 fColor;
-
-      uniform vec3 theta;
+      uniform float pointSize;
 
       void main() {
-        // Compute the sines and cosines of theta for each of
-        //   the three axes in one computation.
-        vec3 angles = radians( theta );
-        vec3 c = cos( angles );
-        vec3 s = sin( angles );
-
-        // Remeber: thse matrices are column-major
-        mat4 rx = mat4( 1.0,  0.0,  0.0, 0.0,
-		                    0.0,  c.x,  s.x, 0.0,
-		                    0.0, -s.x,  c.x, 0.0,
-		                    0.0,  0.0,  0.0, 1.0 );
-
-        mat4 ry = mat4( c.y, 0.0, -s.y, 0.0,
-		                    0.0, 1.0,  0.0, 0.0,
-		                    s.y, 0.0,  c.y, 0.0,
-		                    0.0, 0.0,  0.0, 1.0 );
-
-
-        mat4 rz = mat4( c.z, -s.z, 0.0, 0.0,
-		                    s.z,  c.z, 0.0, 0.0,
-		                    0.0,  0.0, 1.0, 0.0,
-		                    0.0,  0.0, 0.0, 1.0 );
-
         fColor = vColor;
-        gl_Position = rz * ry * rx * vPosition;
+        gl_Position = vPosition;
+        gl_PointSize = pointSize;
       }
     </script>
 
     <script id="fragment-shader" type="x-shader/x-fragment">
 
       precision mediump float;
-
       varying vec4 fColor;
 
       void main() {
@@ -73,10 +49,15 @@
 </head>
     <body onload="canvasMain()">
 
+        <div id="header">
+          <div class="center">
+            <h1>Paint Your Canvas</h1>
+          </div>
+          <table class="center" id="coords"></table>
+        </div>
+
         <!--  WebGL Canvas  -->
         <div class = "container center" id="canvasContainer">
-            <h1>Paint Your Canvas</h1>
-            <table class="center" id="coords"></table>
             <canvas id="gl-canvas" width="512" height="512" >
                 oops ... your browser doesn't support the HTML5 canvas element
             </canvas>
@@ -97,39 +78,39 @@
             <div class="row">
                 <div class="col-lg-3 col-md-4 col-xs-6">
                     <input type="image" src="images/red(230,0,0).png" name="red" class="img-rounded" id="230, 0, 0"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
                     <input type="image" src="images/green(46,184,46).png" name="green" class="img-rounded" id="46, 184, 46"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
                     <input type="image" src="images/blue(0,102,255).png" name="blue" class="img-rounded" id="0, 102, 255"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/yellow(255,255,0).png" name="green" class="img-rounded" id="255, 255, 0"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                    <input type="image" src="images/yellow(255,255,0).png" name="yellow" class="img-rounded" id="255, 255, 0"
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/purple(51,51,153).png" name="green" class="img-rounded" id="51, 51, 153"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                    <input type="image" src="images/purple(51,51,153).png" name="purple" class="img-rounded" id="51, 51, 153"
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/pink(255,102,204).png" name="green" class="img-rounded" id="255, 102, 404"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                    <input type="image" src="images/pink(255,102,204).png" name="pink" class="img-rounded" id="255, 102, 404"
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/brown(153,102,51).png" name="green" class="img-rounded" id="153, 102, 51"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                    <input type="image" src="images/brown(153,102,51).png" name="brown" class="img-rounded" id="153, 102, 51"
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/orange(255,153,51).png" name="green" class="img-rounded" id="255, 153, 51"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                    <input type="image" src="images/orange(255,153,51).png" name="orange" class="img-rounded" id="255, 153, 51"
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/black(0,0,0).png" name="green" class="img-rounded" id="0, 0, 0"
-                           width="40" height="40" onClick="reply_click(this.id)"/>
+                    <input type="image" src="images/black(0,0,0).png" name="black" class="img-rounded" id="0, 0, 0"
+                           width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
             </div>
         </div>

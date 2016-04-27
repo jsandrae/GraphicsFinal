@@ -9,7 +9,11 @@ body {
   background-color: #DDD;
 }
 
-table {
+#header{
+  margin: 0;
+}
+
+table.center {
   border-style: solid;
   border-left-width: 1px;
   border-right-width: 1px;
@@ -31,4 +35,9 @@ td:nth-child(odd) {
     padding-right: 50px;
     margin-left: 35px;
     margin-right: 35px;
+}
+
+h1 {
+  margin-left: auto;
+  margin-right: auto;
 }
