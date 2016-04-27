@@ -124,6 +124,7 @@ function paintEvent(){
  * Function to actually perform the painting
  */
 function doPaint(){
+  debugger;
   console.log("painting")
   var tempX = xCoord,
       tempY = yCoord;
@@ -165,7 +166,7 @@ function eraseAll(){
   zValue = -1;
   colors = [[1,1,1,1]];
   elementCount = 1;
-  pointSizes = 3.0;
+  pointSizes = [3.0];
   updateBuffers();
 }
 
@@ -194,6 +195,7 @@ function initWindow(){
   colors = [[1,1,1,0]];
   elementCount = 1;
   pointSizes = [3.0];
+  selected_rgb_color = [0,0,0,1];
 
   if(debug){
     // fill queue with empty coordinates
@@ -431,7 +433,6 @@ function reply_click(colorName)
         'orange':[255, 153, 51]
     };
     console.log(colorName)
-    debugger;
     var temp = palette[colorName];
     var r = temp[0];
     var b = temp[1];
