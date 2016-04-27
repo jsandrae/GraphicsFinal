@@ -47,6 +47,7 @@ var elementCount; //number of points
 //User Inputs
 var selected_rgb_color;
 var selected_brush_size;
+var selected_opacity = 0.5;
 
 /**
  * Function to take pixel coordinates and transpose them to the webGL coord system
@@ -393,8 +394,10 @@ function reply_click(colorName)
         'brown':[153, 102, 51],
         'orange':[255, 153, 51]
     };
+
     var color = palette[colorName];
-    color.push(0.5);
+    color.push(selected_opacity);
+
     selected_rgb_color = color;
     console.log(color)
 }
@@ -403,7 +406,13 @@ function reply_click(colorName)
  * Function for retrieving size value for brush
  */
 function size_selection() {
-    selected_brush_size = document.getElementById("size_selection").value;
+    selected_brush_size = Number(document.getElementById("size_selection").value);
     console.log(selected_brush_size);
     document.getElementById("size_selected").innerHTML = selected_brush_size;
+}
+
+function oppacity_selection() {
+    selected_opacity = Number(document.getElementById("opacity").value);
+    console.log(selected_opacity);
+    document.getElementById("opacity_selected").innerHTML = selected_opacity*100+"%";
 }

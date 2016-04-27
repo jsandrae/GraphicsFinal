@@ -16,12 +16,12 @@
       attribute  vec4 vPosition;
       attribute  vec4 vColor;
       varying vec4 fColor;
-      attribute float pointSize;
+      uniform float pointSize;
 
       void main() {
         fColor = vColor;
         gl_Position = vPosition;
-        gl_PointSize = 2.0;
+        gl_PointSize = pointSize;
       }
     </script>
 
@@ -71,7 +71,6 @@
                     data-placement="top">Size</button>
             <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Opacity"
                     data-placement="top">Opacity</button>
-            <button type="button" class="btn btn-lg btn-primary" id="Erase">Clear Canvas</button>
         </div>
 
         <!--  Color Button Popover Content  -->

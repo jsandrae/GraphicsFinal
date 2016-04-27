@@ -16,12 +16,12 @@
       attribute  vec4 vPosition;
       attribute  vec4 vColor;
       varying vec4 fColor;
-      attribute float pointSize;
+      uniform float pointSize;
 
       void main() {
         fColor = vColor;
         gl_Position = vPosition;
-        gl_PointSize = 2.0;
+        gl_PointSize = pointSize;
       }
     </script>
 
@@ -69,9 +69,8 @@
                     data-placement="top" data-trigger="focus">Color</button>
             <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-size" title="Brush Size"
                     data-placement="top">Size</button>
-            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Opacity"
-                    data-placement="top">Opacity</button>
-            <button type="button" class="btn btn-lg btn-primary" id="Erase">Clear Canvas</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Diffusion"
+                    data-placement="top">Diffusion</button>
         </div>
 
         <!--  Color Button Popover Content  -->
@@ -134,17 +133,10 @@
 
         <!--  Diffusion Popover Content  -->
         <div class="container" id="diffusion_settings" style="display: none">
-            <p style="display: inline-block">
-                <b>Opacity Selected: </b>
-                <b id="opacity_selected"></b>
-            </p>
-            <p style="display: inline-block">
-                <b>0% </b>
-                <span style="display: inline-block">
-                    <input type="range" id="opacity" min="0" max="1" step=".01" onClick="oppacity_selection()">
-                </span>
-                <b> 100%</b>
-            </p>
+            <div class="input-group">
+                <span>Enable Diffusion Effect: </span>
+                <input type="checkbox" id="diffusion_toggle">
+            </div>
         </div>
 
     </body>
