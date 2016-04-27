@@ -135,6 +135,8 @@ function doPaint(){
     coords.pop();
   }
 
+  colors.push(selected_rgb_color);
+
   // New point added, increment elementCount & zValue
   elementCount++;
   zValue += 1/zInc;
@@ -221,14 +223,6 @@ function initWindow(){
       html : true,
       content : function () {
           return $('#color_picker').html();
-      }
-  });
-
-  //Event handler for size popover
-  $('[data-toggle="popover-size"]').popover({
-      html : true,
-      content : function () {
-          return $('#size_picker').html();
       }
   });
 
