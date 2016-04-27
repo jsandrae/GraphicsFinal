@@ -69,8 +69,8 @@
                     data-placement="top" data-trigger="focus">Color</button>
             <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-size" title="Brush Size"
                     data-placement="top">Size</button>
-            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Diffusion"
-                    data-placement="top">Diffusion</button>
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Opacity"
+                    data-placement="top">Opacity</button>
         </div>
 
         <!--  Color Button Popover Content  -->
@@ -133,10 +133,17 @@
 
         <!--  Diffusion Popover Content  -->
         <div class="container" id="diffusion_settings" style="display: none">
-            <div class="input-group">
-                <span>Enable Diffusion Effect: </span>
-                <input type="checkbox" id="diffusion_toggle">
-            </div>
+            <p style="display: inline-block">
+                <b>Opacity Selected: </b>
+                <b id="opacity_selected"></b>
+            </p>
+            <p style="display: inline-block">
+                <b>0% </b>
+                <span style="display: inline-block">
+                    <input type="range" id="opacity" min="0" max="1" step=".01" onClick="oppacity_selection()">
+                </span>
+                <b> 100%</b>
+            </p>
         </div>
 
     </body>
