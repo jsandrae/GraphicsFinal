@@ -11,9 +11,10 @@ var xAxis = true;
 var yAxis = false;
 var zAxis = false;
 
-var delayGlobal = 100; // global delay value in milliseconds
-var coords = []; // array to store coord objects
+var delayGlobal = 25; // global delay value in milliseconds
+var coords = []; // array to store coord objects for debug
 var colors = []; // array to store colors for each point
+var vertices = []; // array to store vertices to be drawn
 var queueLength = 11; //number of coords to be stored
 var myTimeout; // timeout id to be cleared upon completion
 var coordTimeout; // timeout id for coord update
@@ -28,7 +29,7 @@ var isMouseDown = false; // flag for if mouse is being pressed
 var isWithinCanvas = false; // flag for if mouse is within canvas
 var isPaintEvent = false; // flag for if should be painting
 var isPaintDelay = false; //flag for limiting number of paint events in a given interval
-var debug = true;
+var debug = false;
 
 // buffers
 var cBuffer,
@@ -45,7 +46,7 @@ var $window,
 var elementCount; //number of points
 
 //User Inputs
-var selected_rgb_color;
+var selected_rgb_color = [0,0,0,1];
 var selected_brush_size;
 var selected_opacity = 0.5;
 
@@ -102,7 +103,6 @@ function update(){
       }
       $('#coords').append($row);
     }
-    updateBuffers();
   }
 }
 
@@ -123,23 +123,33 @@ function paintEvent(){
  */
 function doPaint(){
   console.log("painting")
-  var x = xCoord,
-      y = yCoord;
+  var tempX = xCoord,
+      tempY = yCoord;
+
+  var newCoords = translateCoords(tempX,tempY);
 
   if(debug){
-    var newCoords = translateCoords(x,y);
-
     // Add new coordinate to front of coords array
     coords.unshift(newCoords);
     // Pop off last element of array (oldest)
     coords.pop();
   }
 
+  var newVertex = [newCoords.x,newCoords.y];
+  // newCoords is just x and y, add z and 1
+  newVertex.push(zValue);
+  newVertex.push(1);
+
+  vertices.push(newVertex);
   colors.push(selected_rgb_color);
+
 
   // New point added, increment elementCount & zValue
   elementCount++;
   zValue += 1/zInc;
+
+  // Update buffers
+  updateBuffers();
 
   // done with painting event, flip delay flag
   isPaintDelay = !isPaintDelay;
@@ -149,18 +159,22 @@ function doPaint(){
  * Function to erase all points
  */
 function eraseAll(){
-  coords = [0,0,0,1];
+  vertices = [[0,0,0,1]];
   zValue = -1;
-  colors = [0,0,1,1];
+  colors = [[1,1,1,0]];
   elementCount = 1;
+  updateBuffers();
 }
 
 function updateBuffers(){
   gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-  gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(flatten(colors)));
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.DYNAMIC_DRAW);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-  gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(flatten(coords)));
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.DYNAMIC_DRAW);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(pointSizes), gl.DYNAMIC_DRAW);
 }
 
 /**
@@ -172,7 +186,10 @@ function initWindow(){
   $canvas = $('#gl-canvas');
   $document = $(document);
   calulateMidpoints();
-  eraseAll();
+  vertices = [[0,0,0,1]];
+  zValue = -1;
+  colors = [[1,1,1,0]];
+  elementCount = 1;
 
   if(debug){
     // fill queue with empty coordinates
@@ -180,6 +197,8 @@ function initWindow(){
       coords.push({'x':i,'y':i});
     }
     update();
+  } else {
+    $('#coords').addClass('hidden');
   }
   // mouse left canvas, turn off flag
   $canvas.on('mouseout',function(){
@@ -378,15 +397,15 @@ function myRound(number, decimals){
 function reply_click(colorName)
 {
     var palette = {
-        'red':[230, 0, 0],
-        'green':[46, 184, 46],
-        'blue':[0, 102, 255],
-        'yellow':[255, 255, 0],
-        'purple':[51, 51, 153],
+        'red':[230/255, 0, 0],
+        'green':[46/255, 184/255, 46/255],
+        'blue':[0, 102/255, 255/255],
+        'yellow':[255/255, 255/255, 0],
+        'purple':[51/255, 51/255, 153/255],
         'black':[0, 0, 0],
-        'pink':[255, 102, 404],
-        'brown':[153, 102, 51],
-        'orange':[255, 153, 51]
+        'pink':[255/255, 102/255, 40/255],
+        'brown':[153/255, 102/255, 51/255],
+        'orange':[255/255, 153/255, 51/255]
     };
 
     var color = palette[colorName];
