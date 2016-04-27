@@ -11,7 +11,6 @@ var xAxis = true;
 var yAxis = false;
 var zAxis = false;
 
-var isChange = false; // boolean for if it is necessary to update coords
 var delayGlobal = 100; // global delay value in milliseconds
 var coords = []; // array to store coord objects
 var colors = []; // array to store colors for each point
@@ -19,6 +18,8 @@ var queueLength = 11; //number of coords to be stored
 var myTimeout; // timeout id to be cleared upon completion
 var coordTimeout; // timeout id for coord update
 var xCoord, yCoord; // Global coordinate for mouse location on page, to be updated by event handlers
+var zInc = 1000; // Z value will be incremented by 1/1000 each point
+var zValue; // starting z value will be lowest possible
 
 var midX, midY; // mid value for canvas, only recalculated on window resize
 
@@ -29,31 +30,23 @@ var isPaintEvent = false; // flag for if should be painting
 var isPaintDelay = false; //flag for limiting number of paint events in a given interval
 var debug = true;
 
+// buffers
+var cBuffer,
+    vColor,
+    vBuffer,
+    vPosition,
+    program;
+
 // jQuery selector variables
 var $window,
     $canvas,
     $document;
 
-var elementCount; //number of indices
-var indexCount = 0; // Offset for previous ring indices
+var elementCount; //number of points
 
 //User Inputs
 var selected_rgb_color;
 var selected_brush_size;
-
-function testCoords(event){
-  var x = xCoord,
-      y = yCoord;
-
-  var newCoords = translateCoords(x,y);
-
-  // Add new coordinate to front of coords array
-  coords.unshift(newCoords);
-  // Pop off last element of array (oldest)
-  coords.pop();
-  // Toggle isChange flag
-  isChange = !isChange;
-}
 
 /**
  * Function to take pixel coordinates and transpose them to the webGL coord system
@@ -96,26 +89,20 @@ function update(){
   // if paint event is true, user is correctly engaging paint, try to paint
   if(isPaintEvent){
     paintEvent();
-    // if a change has been made, update window to reflect
-    if(isChange){
-      if(debug){
-        // Remove all elements within coord table
-        $('#coords').empty();
-        var $row = $('<tr>');
-        // for each set of coordinates
-        for(var i=0; i<coords.length; i++){
-          // pull out x&y and add to a data field in table
-          var $data = $('<td>').text(coords[i].x+','+coords[i].y);
-          $row.append($data);
-        }
-        $('#coords').append($row);
+    if(debug){
+      // Remove all elements within coord table
+      $('#coords').empty();
+      var $row = $('<tr>');
+      // for each set of coordinates
+      for(var i=0; i<coords.length; i++){
+        // pull out x&y and add to a data field in table
+        var $data = $('<td>').text(coords[i].x+','+coords[i].y);
+        $row.append($data);
       }
-      // Set isChange to false
-      isChange = !isChange;
+      $('#coords').append($row);
     }
+    updateBuffers();
   }
-
-
 }
 
 /**
@@ -135,9 +122,42 @@ function paintEvent(){
  */
 function doPaint(){
   console.log("painting")
-  $canvas.trigger('paint:on'); // trigger paint:on custom canvas event
+  var x = xCoord,
+      y = yCoord;
+
+  if(debug){
+    var newCoords = translateCoords(x,y);
+
+    // Add new coordinate to front of coords array
+    coords.unshift(newCoords);
+    // Pop off last element of array (oldest)
+    coords.pop();
+  }
+
+  // New point added, increment elementCount & zValue
+  elementCount++;
+  zValue += 1/zInc;
+
   // done with painting event, flip delay flag
   isPaintDelay = !isPaintDelay;
+}
+
+/**
+ * Function to erase all points
+ */
+function eraseAll(){
+  coords = [0,0,0,1];
+  zValue = -1;
+  colors = [0,0,1,1];
+  elementCount = 1;
+}
+
+function updateBuffers(){
+  gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
+  gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(flatten(colors)));
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+  gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(flatten(coords)));
 }
 
 /**
@@ -149,6 +169,7 @@ function initWindow(){
   $canvas = $('#gl-canvas');
   $document = $(document);
   calulateMidpoints();
+  eraseAll();
 
   if(debug){
     // fill queue with empty coordinates
@@ -165,13 +186,6 @@ function initWindow(){
   // mouse entered canvas, turn on flag
   $canvas.on('mouseover', function(){
     isWithinCanvas = true;
-  })
-
-  // create custom event handler for when paint needs to occur
-  $canvas.on('paint:on',function(event){
-    if(debug){
-      testCoords();
-    }
   })
 
   // mouse button pressed, turn on flag and provide event handler for turning off flag
@@ -197,8 +211,8 @@ function initWindow(){
   $window.on('resize', resizeWindow());
 
   //event listeners for buttons and popovers
-  $('#colorButton').on('click',function() {
-    openPalette(this);
+  $('#erase').on('click',function() {
+    eraseAll();
   });
 
   //event handler for color popover
@@ -258,52 +272,36 @@ function canvasMain() {
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT); //using z buffer and colors, reset both
 
     //  Load shaders and initialize attribute buffers
-    var program = initShaders(gl, "vertex-shader", "fragment-shader");
+    program = initShaders(gl, "vertex-shader", "fragment-shader");
 
     gl.viewport(0, 0, canvas.width, canvas.height);
-
-    render();
-
-}//CanvasMain
-
-
-function drawObject(gl, program, obj) {
 
     // set the shader to use
     gl.useProgram(program);
 
-
-    // array element buffer
-
-    var iBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, iBuffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(obj.indices), gl.STATIC_DRAW);
-
     // color array atrribute buffer
 
-    var cBuffer = gl.createBuffer();
+    cBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(obj.colors), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.DYNAMIC_DRAW);
 
-    var vColor = gl.getAttribLocation(program, "vColor");
+    vColor = gl.getAttribLocation(program, "vColor");
     gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vColor);
 
     // vertex array attribute buffer
 
-    var vBuffer = gl.createBuffer();
+    vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(obj.vertices), gl.STATIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(coords), gl.DYNAMIC_DRAW);
 
-    var vPosition = gl.getAttribLocation(program, "vPosition");
+    vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
 
-    elementCount = obj.indices.length;
-
     render();
 
-}//drawObject
+}//CanvasMain
 
 function render()
 {
@@ -312,7 +310,7 @@ function render()
 
     update();
 
-    //gl.drawElements(gl.TRIANGLES, elementCount, gl.UNSIGNED_SHORT, 0);  //draw elements; elementCount number of indices
+    gl.drawArrays(gl.POINTS, 0, elementCount);
 
     requestAnimFrame( render );
 }
