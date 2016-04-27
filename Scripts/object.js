@@ -11,7 +11,7 @@ var xAxis = true;
 var yAxis = false;
 var zAxis = false;
 
-var delayGlobal = 25; // global delay value in milliseconds
+var delayGlobal = 0; // global delay value in milliseconds
 var coords = []; // array to store coord objects for debug
 var colors = []; // array to store colors for each point
 var vertices = []; // array to store vertices to be drawn
@@ -21,6 +21,7 @@ var coordTimeout; // timeout id for coord update
 var xCoord, yCoord; // Global coordinate for mouse location on page, to be updated by event handlers
 var zInc = 1000; // Z value will be incremented by 1/1000 each point
 var zValue; // starting z value will be lowest possible
+var pointSizes = []; // array to store point sizes
 
 var midX, midY; // mid value for canvas, only recalculated on window resize
 
@@ -36,7 +37,8 @@ var cBuffer,
     vColor,
     vBuffer,
     vPosition,
-    program;
+    program,
+    pbuffer;
 
 // jQuery selector variables
 var $window,
@@ -46,9 +48,9 @@ var $window,
 var elementCount; //number of points
 
 //User Inputs
-var selected_rgb_color = [0,0,0,1];
-var selected_brush_size;
-var selected_opacity = 0.5;
+var selected_rgb_color;
+var selected_brush_size = 3.0;
+var selected_opacity = 1;
 
 /**
  * Function to take pixel coordinates and transpose them to the webGL coord system
@@ -142,7 +144,7 @@ function doPaint(){
 
   vertices.push(newVertex);
   colors.push(selected_rgb_color);
-
+  pointSizes.push(selected_brush_size);
 
   // New point added, increment elementCount & zValue
   elementCount++;
@@ -161,20 +163,21 @@ function doPaint(){
 function eraseAll(){
   vertices = [[0,0,0,1]];
   zValue = -1;
-  colors = [[1,1,1,0]];
+  colors = [[1,1,1,1]];
   elementCount = 1;
+  pointSizes = 3.0;
   updateBuffers();
 }
 
 function updateBuffers(){
   gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.DYNAMIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.DYNAMIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
 
-  //gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
-  //gl.bufferData(gl.ARRAY_BUFFER, flatten(pointSizes), gl.DYNAMIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(pointSizes), gl.STATIC_DRAW);
 }
 
 /**
@@ -190,6 +193,7 @@ function initWindow(){
   zValue = -1;
   colors = [[1,1,1,0]];
   elementCount = 1;
+  pointSizes = [3.0];
 
   if(debug){
     // fill queue with empty coordinates
@@ -252,6 +256,15 @@ function initWindow(){
           return $('#diffusion_settings').html();
       }
   });
+
+  //Event handler for size popover
+$('[data-toggle="popover-size"]').popover({
+    html : true,
+    content : function () {
+        return $('#size_picker').html();
+    }
+});
+
 }
 
 function resizeWindow(){
@@ -297,7 +310,7 @@ function canvasMain() {
 
     cBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, cBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
     vColor = gl.getAttribLocation(program, "vColor");
     gl.vertexAttribPointer(vColor, 4, gl.FLOAT, false, 0, 0);
@@ -307,11 +320,21 @@ function canvasMain() {
 
     vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(coords), gl.DYNAMIC_DRAW);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(coords), gl.STATIC_DRAW);
 
     vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(vPosition);
+
+    // point size attribute buffer
+
+    pBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(pointSizes), gl.STATIC_DRAW);
+
+    pointSize = gl.getAttribLocation(program, "pointSize");
+    gl.vertexAttribPointer(pointSize, 1, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(pointSize);
 
     render();
 
@@ -397,18 +420,27 @@ function myRound(number, decimals){
 function reply_click(colorName)
 {
     var palette = {
-        'red':[230/255, 0, 0],
-        'green':[46/255, 184/255, 46/255],
-        'blue':[0, 102/255, 255/255],
-        'yellow':[255/255, 255/255, 0],
-        'purple':[51/255, 51/255, 153/255],
+        'red':[230, 0, 0],
+        'green':[46, 184, 46],
+        'blue':[0, 102, 255],
+        'yellow':[255, 255, 0],
+        'MidnightBlue':[51, 51, 153],
         'black':[0, 0, 0],
-        'pink':[255/255, 102/255, 40/255],
-        'brown':[153/255, 102/255, 51/255],
-        'orange':[255/255, 153/255, 51/255]
+        'pink':[255, 102, 40],
+        'SaddleBrown':[153, 102, 51],
+        'orange':[255, 153, 51]
     };
-
-    var color = palette[colorName];
+    console.log(colorName)
+    debugger;
+    var temp = palette[colorName];
+    var r = temp[0];
+    var b = temp[1];
+    var g = temp[2];
+    var stringX = 'rgb('+r+','+g+','+b+')';
+    $('#colorButton').css('background-color',colorName);
+    var color = temp.map(function(num){
+      return num/255;
+    });
     color.push(selected_opacity);
 
     selected_rgb_color = color;

@@ -21,7 +21,7 @@
       void main() {
         fColor = vColor;
         gl_Position = vPosition;
-        gl_PointSize = 3.0;
+        gl_PointSize = pointSize;
       }
     </script>
 
@@ -65,10 +65,12 @@
 
         <!--  Buttons  -->
         <div class = "well center" id="buttonContainer">
-            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-color" title="Color Picker"
-                    data-placement="top" data-trigger="focus">Color</button>
-            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Opacity"
-                    data-placement="top">Opacity</button>
+            <button type="button" class="btn btn-lg btn-default" data-toggle="popover-color" title="Color Picker"
+                    data-placement="top" data-trigger="focus" id="colorButton">Color</button>
+      <!--      <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-diffusion" title="Opacity"
+                    data-placement="top">Opacity</button>-->
+            <button type="button" class="btn btn-lg btn-primary" data-toggle="popover-size" title="Brush Size"
+                data-placement="top">Size</button>
             <button type="button" class="btn btn-lg btn-primary" id="erase">Clear Canvas</button>
         </div>
 
@@ -92,7 +94,7 @@
                            width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/purple(51,51,153).png" name="purple" class="img-rounded" id="51, 51, 153"
+                    <input type="image" src="images/purple(51,51,153).png" name="MidnightBlue" class="img-rounded" id="51, 51, 153"
                            width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
@@ -100,13 +102,13 @@
                            width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
                 <div class="col-lg-3 col-md-4 col-xs-6">
-                    <input type="image" src="images/brown(153,102,51).png" name="brown" class="img-rounded" id="153, 102, 51"
+                    <input type="image" src="images/brown(153,102,51).png" name="SaddleBrown" class="img-rounded" id="153, 102, 51"
                            width="40" height="40" onClick="reply_click(this.name)"/>
                 </div>
-                <div class="col-lg-3 col-md-4 col-xs-6">
+            <!--    <div class="col-lg-3 col-md-4 col-xs-6">
                     <input type="image" src="images/orange(255,153,51).png" name="orange" class="img-rounded" id="255, 153, 51"
                            width="40" height="40" onClick="reply_click(this.name)"/>
-                </div>
+                </div>-->
                 <div class="col-lg-3 col-md-4 col-xs-6">
                     <input type="image" src="images/black(0,0,0).png" name="black" class="img-rounded" id="0, 0, 0"
                            width="40" height="40" onClick="reply_click(this.name)"/>
@@ -123,9 +125,9 @@
             <p style="display: inline-block">
                 <b>1 </b>
                 <span style="display: inline-block">
-                    <input type="range" id="size_selection" min="1" max="50" step="1" onClick="size_selection()">
+                    <input type="range" id="size_selection" min="1" max="20" step="1" value="3" onClick="size_selection()">
                 </span>
-                <b> 50</b>
+                <b> 20</b>
             </p>
 
         </div>
