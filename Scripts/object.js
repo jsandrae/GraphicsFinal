@@ -173,8 +173,8 @@ function updateBuffers(){
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.DYNAMIC_DRAW);
 
-  gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(pointSizes), gl.DYNAMIC_DRAW);
+  //gl.bindBuffer(gl.ARRAY_BUFFER, pBuffer);
+  //gl.bufferData(gl.ARRAY_BUFFER, flatten(pointSizes), gl.DYNAMIC_DRAW);
 }
 
 /**
