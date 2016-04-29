@@ -50,7 +50,7 @@ var elementCount; //number of points
 //User Inputs
 var selected_rgb_color;
 var selected_brush_size = 3.0;
-var selected_opacity = 1;
+var selected_opacity = 0.6;
 
 /**
  * Function to take pixel coordinates and transpose them to the webGL coord system
@@ -352,59 +352,6 @@ function render()
     gl.drawArrays(gl.POINTS, 0, elementCount);
 
     requestAnimFrame( render );
-}
-
-/**
- * Function to randomly select a color from the predetermined JSON object, and
- * randomly select a saturation value
- */
-function getColor(isSat){
-  var colorVals = [];
-  var i;
-  var palette = {
-  	    red:[230, 0, 0],
-  	    green:[46, 184, 46],
-  	    blue:[0, 102, 255],
-  	    yellow:[255, 255, 0],
-  	    purple:[51, 51, 153],
-  	    black:[0, 0, 0],
-  	    pink:[255, 102, 404],
-  	    brown:[153, 102, 51],
-  	    orange:[255, 153, 51]
-    };
-  //randomly select one color from palette
-  var rgbVals = palette[Math.floor(Math.random()*palette.length)].rgb;
-  for (i=0; i<rgbVals.length; i++) {
-    //RGB Values are stored as ints, divide by 256 to keep same color scheme
-    colorVals.push(rgbVals[i]/256);
-  }
-  /**for completely random saturation, keep following line
-   * If full saturation parameter was passed to function, then saturation will be
-   * 1, else will be a random value
-   */
-  //isSat ? colorVals.push(1) : colorVals.push(Math.random());
-  //for random saturation with minimum threshold, keep following lines
-  var lowerFloorPerCent = 0.67; //change minimum saturation percentage here
-  colorVals.push((Math.random()*(1-lowerFloorPerCent)+(lowerFloorPerCent)));
-
-  return colorVals;
-}
-
-/**
- * Function to use getColor to get an array of predetermined color arrays, sorted
- * in by saturation value
- */
-function getPalette(paletteSize){
-  var palette = [],
-      i;
-  //Fill palette with randomized colors
-  for (i=0; i < paletteSize; i++){
-    palette.push(getColor());
-  }
-  //sort palette by satration value (value at index 3)
-  palette.sort(function(a, b){return a[3]-b[3]});
-
-  return palette;
 }
 
 /**
